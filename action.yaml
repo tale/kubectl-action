@@ -1,0 +1,25 @@
+name: Kubernetes CLI (kubectl)
+description: GitHub Action to manage a K8s cluster using kubectl
+author: Aarnav Tale <aarnav@tale.me>
+branding:
+  icon: terminal
+  color: blue
+inputs:
+  kubectl-version:
+    description: Version of the kubectl CLI to use
+    required: false
+    default: v1.23.0
+  base64-kube-config:
+    description: A base64 encoded reference to your authorization file (~/.kube/config)
+    required: true
+runs:
+  using: composite
+  steps:
+  - name: Configure kubectl CLI
+    run: setup-kubectl.sh
+    shell: bash
+  - name: Authorize kubectl to the cluster
+    run: login-kubectl.sh
+    shell: bash
+    env:
+      BASE64_KUBE_CONFIG: ${{ inputs.base64-kube-config }}
