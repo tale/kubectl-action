@@ -20,6 +20,8 @@ runs:
   - name: Configure kubectl CLI
     run: setup-kubectl.sh
     shell: bash
+    env:
+      KUBECTL_VERSION: ${{ inputs.kubectl-version }}
   - name: Authorize kubectl to the cluster
     run: login-kubectl.sh
     shell: bash
