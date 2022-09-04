@@ -11,7 +11,7 @@ To use this action, add the following step to your GitHub Action workflow:
 
 Keep in mind that the action expects a base64 encoded string of your Kubernetes configuration. The simplest way to do that is to run `cat $HOME/.kube/config | base64` and save that output as an action secret.
 
-It's also possible to specify the version of the [kubectl](https://kubernetes.io/docs/reference/kubectl/) CLI to use. The current default release used by this action is `v1.23.0`.
+It's also possible to specify the version of the [kubectl](https://kubernetes.io/docs/reference/kubectl/) CLI to use. The current default release used by this action is `v1.25.0`.
 ```yaml
 - uses: tale/kubectl-action@v1
   with:
