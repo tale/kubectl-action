@@ -1,8 +1,11 @@
 # kubectl-action
+
 GitHub Action to manage a K8s (Kubernetes) cluster using kubectl.
 
-# Usage
+## Usage
+
 To use this action, add the following step to your GitHub Action workflow:
+
 ```yaml
 - uses: tale/kubectl-action@v1
   with:
@@ -11,7 +14,8 @@ To use this action, add the following step to your GitHub Action workflow:
 
 Keep in mind that the action expects a base64 encoded string of your Kubernetes configuration. The simplest way to do that is to run `cat $HOME/.kube/config | base64` and save that output as an action secret.
 
-It's also possible to specify the version of the [kubectl](https://kubernetes.io/docs/reference/kubectl/) CLI to use. The current default release used by this action is `v1.26.0`.
+It's also possible to specify the version of the [kubectl](https://kubernetes.io/docs/reference/kubectl/) CLI to use. The current default release used by this action is the latest version.
+
 ```yaml
 - uses: tale/kubectl-action@v1
   with:
@@ -20,6 +24,7 @@ It's also possible to specify the version of the [kubectl](https://kubernetes.io
 ```
 
 Once you've completed this setup, you have direct access to the `kubectl` binary and command in the rest of your actions. Here's a full example to give you some inspiration:
+
 ```yaml
 name: Kubectl Action
 
