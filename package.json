@@ -1,6 +1,6 @@
 {
 	"name": "kubectl-action",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"scripts": {
 		"dev": "ncc -smw --license licenses.txt build src/main.ts",
 		"build": "ncc -sm --license licenses.txt build src/main.ts",
