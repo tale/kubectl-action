@@ -11,6 +11,11 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v3
+    - name: Create push branch
+      uses: actions/checkout@v3
+      with:
+        ref: ci
+        path: push
     - name: Build latest dist/ folder
       run: |
         npm install -g pnpm
@@ -20,9 +25,12 @@ jobs:
       run: |
         git config --global user.email "<41898282+github-actions[bot]@users.noreply.github.com>"
         git config --global user.name "github-actions[bot]"
-        git rm -rf .
-        git clean -fd --exclude 'LICENSE' --exclude 'README.md' --exclude 'action.yaml'
-        git checkout --orphan ci
+        cp -r dist push/dist
+        cp README.md push/README.md
+        cp LICENSE push/LICENSE
+        cp action.yaml push/action.yaml
+
+        cd push
         git add dist README.md LICENSE action.yaml
         git commit -m "chore: create ci test ($GITHUB_SHA)"
         git push -f origin ci
