@@ -6,10 +6,32 @@ on:
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+    - name: Build latest dist/ folder
+      run: |
+        npm install -g pnpm
+        pnpm install --frozen-lockfile
+        pnpm run build
+    - name: Upload dist/ folder
+      run: |
+        git config --global user.email "<41898282+github-actions[bot]@users.noreply.github.com>"
+        git config --global user.name "github-actions[bot]"
+
+        git branch -M test
+        git add dist
+        git commit -m "chore: update dist folder ($GITHUB_SHA)"
+        git push origin test
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
     - name: Setup tale/kubectl-action
-      uses: tale/kubectl-action@main
+      uses: tale/kubectl-action@test
       with:
         base64-kube-config: ${{ secrets.KUBE_CONFIG }}
     - name: Test the output of `kubectl cluster-info`
