@@ -21,7 +21,7 @@ export async function installKubectl() {
 		trimWhitespace: true
 	})
 
-	const version = input === 'latest' ? await fetchLatestVersion() : input
+	const version = input === 'latest' || input === '' ? await fetchLatestVersion() : input
 	debug(`kubectl-version: ${version ?? 'undefined'}`)
 
 	if (!version?.startsWith('v')) {
