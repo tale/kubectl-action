@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { env, stdout } from 'node:process'
+import { clearLine, cursorTo } from 'node:readline'
 
 import { addPath, debug, getInput, saveState, setFailed, warning } from '@actions/core'
 import { fetch } from 'undici'
@@ -94,16 +95,16 @@ async function downloadKubectl(version: string) {
 		downloaded += chunk.length
 
 		if (Math.floor((downloaded / size) * 80) > progressed) {
-			stdout.clearLine(0)
-			stdout.cursorTo(0)
+			clearLine(stdout, 0)
+			cursorTo(stdout, 0)
 
 			progressed++
 			stdout.write(`[${'='.repeat(progressed)}>${' '.repeat(80 - progressed)}]`)
 		}
 	}
 
-	stdout.clearLine(0)
-	stdout.cursorTo(0)
+	clearLine(stdout, 0)
+	cursorTo(stdout, 0)
 	console.log(`[${'='.repeat(80)}]`)
 
 	const hashSum = hashStream.digest('hex')
