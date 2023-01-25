@@ -22,6 +22,7 @@ export async function installKubectl() {
 	})
 
 	const version = input === 'latest' ? await fetchLatestVersion() : input
+	debug(`kubectl-version: ${version ?? 'undefined'}`)
 
 	if (!version?.startsWith('v')) {
 		setFailed('Unable to determine the `kubectl` version to install')
@@ -29,7 +30,6 @@ export async function installKubectl() {
 	}
 
 	console.log(`Installing kubectl version ${version}`)
-
 	const kubectl = await downloadKubectl(version)
 
 	if (!kubectl) {
@@ -72,9 +72,11 @@ async function downloadKubectl(version: string) {
 	const hashUrl = `${url}.sha256`
 
 	console.log(`Downloading kubectl (${url})`)
+	debug(`Downloading kubectl checksum (${hashUrl})`)
 
 	const hashResponse = await fetch(hashUrl)
 	if (!hashResponse.ok) {
+		debug(`Failed to download kubectl checksum with status ${hashResponse.status}`)
 		warning(`Skipping checksum verification for kubectl ${version}`)
 	}
 
@@ -82,6 +84,7 @@ async function downloadKubectl(version: string) {
 
 	const response = await fetch(url)
 	if (!response.ok || !response.body) {
+		debug(`Failed to download kubectl with status ${response.status}`)
 		setFailed(`Failed to download kubectl with status ${response.status}`)
 		return
 	}
@@ -89,6 +92,7 @@ async function downloadKubectl(version: string) {
 	const hashStream = createHash('sha256')
 	const body = Readable.fromWeb(response.body)
 	const size = Number(response.headers.get('content-length'))
+	debug(`Downloaded kubectl (${size} bytes)`)
 
 	return new Promise<Readable | void>((resolve, reject) => {
 		let downloaded = 0
@@ -114,6 +118,7 @@ async function downloadKubectl(version: string) {
 
 			const hashSum = hashStream.digest('hex')
 			if (hashResponse.ok && hashSum !== hash) {
+				debug(`Checksum verification failed for kubectl ${version}`)
 				setFailed(`Checksum verification failed for kubectl ${version}`)
 				resolve()
 			}
