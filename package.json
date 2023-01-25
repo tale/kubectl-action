@@ -4,8 +4,7 @@
 	"scripts": {
 		"dev": "ncc -smw --license licenses.txt build src/main.ts",
 		"build": "ncc -sm --license licenses.txt build src/main.ts",
-		"push": "np --no-cleanup --no-publish --no-tests --message 'chore: v%s'",
-		"version": "pnpm run build && git add dist"
+		"push": "np --no-cleanup --no-publish --no-tests --message 'chore: v%s'"
 	},
 	"dependencies": {
 		"@actions/core": "^1.10.0",
