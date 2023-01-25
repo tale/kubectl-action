@@ -1,9 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto'
-import { createWriteStream } from 'node:fs'
-import { mkdir } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { env, stdout } from 'node:process'
-import { Readable } from 'node:stream'
 
 import { addPath, debug, getInput, saveState, setFailed, warning } from '@actions/core'
 import { fetch } from 'undici'
@@ -40,16 +38,8 @@ export async function installKubectl() {
 	await mkdir(path, { recursive: true })
 	saveState('kubectl-path', path)
 
-	const stream = createWriteStream(join(path, 'kubectl'))
-
-	kubectl.pipe(stream)
-
 	console.log(`Installing kubectl to ${path}`)
-	await new Promise<void>((resolve, reject) => {
-		stream.on('finish', resolve)
-		stream.on('error', reject)
-	})
-
+	await writeFile(join(path, 'kubectl'), kubectl)
 	addPath(path)
 }
 
@@ -90,42 +80,38 @@ async function downloadKubectl(version: string) {
 	}
 
 	const hashStream = createHash('sha256')
-	const body = Readable.fromWeb(response.body)
-	const size = Number(response.headers.get('content-length'))
+	const { body, headers } = response
+	const size = Number(headers.get('content-length'))
 	debug(`Downloaded kubectl (${size} bytes)`)
 
-	return new Promise<Readable | void>((resolve, reject) => {
-		let downloaded = 0
-		let progressed = 0
+	let downloaded = 0
+	let progressed = 0
+	const buffer = Buffer.alloc(size)
 
-		body.on('data', (chunk: Buffer) => {
-			hashStream.update(chunk)
-			downloaded += chunk.length
+	for await (const chunk of body as AsyncIterable<Buffer>) {
+		buffer.write(chunk.toString('binary'), downloaded, 'binary')
+		hashStream.update(chunk)
+		downloaded += chunk.length
 
-			if (Math.floor((downloaded / size) * 80) > progressed) {
-				stdout.clearLine(0)
-				stdout.cursorTo(0)
-
-				progressed++
-				stdout.write(`[${'='.repeat(progressed)}>${' '.repeat(80 - progressed)}]`)
-			}
-		})
-
-		body.on('end', () => {
+		if (Math.floor((downloaded / size) * 80) > progressed) {
 			stdout.clearLine(0)
 			stdout.cursorTo(0)
-			console.log(`[${'='.repeat(80)}]`)
 
-			const hashSum = hashStream.digest('hex')
-			if (hashResponse.ok && hashSum !== hash) {
-				debug(`Checksum verification failed for kubectl ${version}`)
-				setFailed(`Checksum verification failed for kubectl ${version}`)
-				resolve()
-			}
+			progressed++
+			stdout.write(`[${'='.repeat(progressed)}>${' '.repeat(80 - progressed)}]`)
+		}
+	}
 
-			resolve(body)
-		})
+	stdout.clearLine(0)
+	stdout.cursorTo(0)
+	console.log(`[${'='.repeat(80)}]`)
 
-		body.on('error', reject)
-	})
+	const hashSum = hashStream.digest('hex')
+	if (hashResponse.ok && hashSum !== hash) {
+		debug(`Checksum verification failed for kubectl ${version}`)
+		setFailed(`Checksum verification failed for kubectl ${version}`)
+		return
+	}
+
+	return buffer
 }
