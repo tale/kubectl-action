@@ -4,8 +4,7 @@
 	"scripts": {
 		"dev": "ncc -smw --license licenses.txt build src/main.ts",
 		"build": "ncc -sm --license licenses.txt build src/main.ts",
-		"push": "np --no-cleanup --no-publish --no-tests --message 'chore: v%s'",
-		"postpush": "git tag --force v1 && git push -f",
+		"push": "np --no-cleanup --no-publish --no-tests --message 'chore: v%s' && git tag --force v1 && git push -f",
 		"version": "pnpm run build && git add dist"
 	},
 	"dependencies": {
