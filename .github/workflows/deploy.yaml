@@ -1,3 +1,5 @@
+name: Deploy Action
+
 on:
   push:
     tags:
@@ -22,7 +24,6 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git rm -rf .
         git clean -fdx
-        git reset --hard
         git checkout --orphan v1
         git add dist README.md LICENSE action.yaml
         git commit -m "chore: create v1 release ($GITHUB_SHA)"

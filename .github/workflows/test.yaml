@@ -1,4 +1,4 @@
-name: Kubectl Action
+name: Test Action
 
 on:
   push:
@@ -20,10 +20,11 @@ jobs:
       run: |
         git config --global user.email "<41898282+github-actions[bot]@users.noreply.github.com>"
         git config --global user.name "github-actions[bot]"
-
+        git rm -rf .
+        git clean -fdx
         git checkout --orphan ci
-        git add dist
-        git commit -m "chore: update dist folder ($GITHUB_SHA)"
+        git add dist README.md LICENSE action.yaml
+        git commit -m "chore: create ci test ($GITHUB_SHA)"
         git push -f origin ci
   test:
     name: Test
