@@ -22,10 +22,8 @@ jobs:
       run: |
         git config --global user.email "<41898282+github-actions[bot]@users.noreply.github.com>"
         git config --global user.name "github-actions[bot]"
-        git rm -rf .
-        git clean -fdx
         git checkout --orphan v1
-        git add dist README.md LICENSE action.yaml
-        git commit -m "chore: create v1 release ($GITHUB_SHA)"
+        git add -f dist README.md LICENSE action.yaml
+        git commit -m "chore: create ci release ($GITHUB_SHA)"
         git tag --force v1
         git push -f --tags origin v1
