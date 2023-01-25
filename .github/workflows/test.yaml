@@ -1,0 +1,16 @@
+name: Kubectl Action
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup tale/kubectl-action
+      uses: tale/kubectl-action@v1
+      with:
+        base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+    - name: Test the output of `kubectl cluster-info`
+      run: kubectl cluster-info
