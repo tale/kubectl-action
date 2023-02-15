@@ -1,5 +1,6 @@
+import { execSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { chmod, mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { env, stdout } from 'node:process'
 import { clearLine, cursorTo } from 'node:readline'
@@ -41,6 +42,8 @@ export async function installKubectl() {
 
 	console.log(`Installing kubectl to ${path}`)
 	await writeFile(join(path, 'kubectl'), kubectl)
+
+	execSync(`chmod +x ${join(path, 'kubectl')}`)
 	addPath(path)
 }
 
