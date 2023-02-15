@@ -1,11 +1,9 @@
-import { execSync } from 'node:child_process'
-import { createHash, randomUUID } from 'node:crypto'
-import { chmod, mkdir, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
-import { env, stdout } from 'node:process'
-import { clearLine, cursorTo } from 'node:readline'
+import { chmod } from 'node:fs/promises'
+import { dirname, join } from 'node:path'
+import { env } from 'node:process'
 
-import { addPath, debug, getInput, saveState, setFailed, warning } from '@actions/core'
+import { addPath, debug, getInput, setFailed } from '@actions/core'
+import { cacheFile, downloadTool, find } from '@actions/tool-cache'
 import { fetch } from 'undici'
 
 export async function installKubectl() {
@@ -30,21 +28,16 @@ export async function installKubectl() {
 	}
 
 	console.log(`Installing kubectl version ${version}`)
-	const kubectl = await downloadKubectl(version)
 
-	if (!kubectl) {
-		return
+	try {
+		const path = await fetchKubectl(version)
+		await chmod(path, '775')
+		addPath(dirname(path))
+		debug(`kubectl ${version} installed and cached at ${path}`)
+	} catch {
+		debug('Failed to download kubectl from dl.k8s.io')
+		setFailed('Failed to download kubectl from dl.k8s.io')
 	}
-
-	const path = join(env.RUNNER_TEMP, randomUUID())
-	await mkdir(path, { recursive: true })
-	saveState('kubectl-path', path)
-
-	console.log(`Installing kubectl to ${path}`)
-	await writeFile(join(path, 'kubectl'), kubectl)
-
-	execSync(`chmod +x ${join(path, 'kubectl')}`)
-	addPath(path)
 }
 
 // Fetches the latest kubectl version from the Kubernetes release server
@@ -60,62 +53,21 @@ async function fetchLatestVersion() {
 }
 
 // Downloads the kubectl binary from the Kubernetes release server
-// Also runs a checksum verification on the downloaded binary
-async function downloadKubectl(version: string) {
+// If already downloaded, returns the path to the cached binary
+async function fetchKubectl(version: string) {
+	const cachedPath = find('kubectl', version)
+
+	// Cached path is a directory containing the kubectl binary
+	if (cachedPath) {
+		debug(`kubectl ${version} already installed`)
+		return join(cachedPath, 'kubectl')
+	}
+
+	// TODO: Support other platforms
 	const url = `https://dl.k8s.io/release/${version}/bin/linux/amd64/kubectl`
-	const hashUrl = `${url}.sha256`
 
 	console.log(`Downloading kubectl (${url})`)
-	debug(`Downloading kubectl checksum (${hashUrl})`)
-
-	const hashResponse = await fetch(hashUrl)
-	if (!hashResponse.ok) {
-		debug(`Failed to download kubectl checksum with status ${hashResponse.status}`)
-		warning(`Skipping checksum verification for kubectl ${version}`)
-	}
-
-	const hash = hashResponse.ok ? await hashResponse.text() : ''
-
-	const response = await fetch(url)
-	if (!response.ok || !response.body) {
-		debug(`Failed to download kubectl with status ${response.status}`)
-		setFailed(`Failed to download kubectl with status ${response.status}`)
-		return
-	}
-
-	const hashStream = createHash('sha256')
-	const { body, headers } = response
-	const size = Number(headers.get('content-length'))
-	debug(`Downloaded kubectl (${size} bytes)`)
-
-	let downloaded = 0
-	let progressed = 0
-	const buffer = Buffer.alloc(size)
-
-	for await (const chunk of body as AsyncIterable<Buffer>) {
-		buffer.write(chunk.toString('binary'), downloaded, 'binary')
-		hashStream.update(chunk)
-		downloaded += chunk.length
-
-		if (Math.floor((downloaded / size) * 80) > progressed) {
-			clearLine(stdout, 0)
-			cursorTo(stdout, 0)
-
-			progressed++
-			stdout.write(`[${'='.repeat(progressed)}>${' '.repeat(80 - progressed)}]`)
-		}
-	}
-
-	clearLine(stdout, 0)
-	cursorTo(stdout, 0)
-	console.log(`[${'='.repeat(80)}]`)
-
-	const hashSum = hashStream.digest('hex')
-	if (hashResponse.ok && hashSum !== hash) {
-		debug(`Checksum verification failed for kubectl ${version}`)
-		setFailed(`Checksum verification failed for kubectl ${version}`)
-		return
-	}
-
-	return buffer
+	const downloadPath = await downloadTool(url)
+	const toolPath = await cacheFile(downloadPath, 'kubectl', 'kubectl', version)
+	return join(toolPath, 'kubectl')
 }
