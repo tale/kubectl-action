@@ -1,7 +1,13 @@
+import { platform } from 'node:process'
+
 import { debug, getState, setFailed } from '@actions/core'
 import { setupKubeconfig } from 'login'
 import { installKubectl } from 'setup'
 import { teardown } from 'teardown'
+
+if (platform === 'win32') {
+	setFailed('kubectl-action does not support Windows')
+}
 
 if (getState('kubectl-path')) {
 	debug('Running post kubectl-action setup')
