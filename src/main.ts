@@ -14,7 +14,7 @@ if (getState('kubectl-path')) {
 	teardown()
 		// eslint-disable-next-line unicorn/prefer-top-level-await
 		.catch(error => {
-			setFailed('Failed to install kubectl (this is a bug in kubectl-action): ')
+			setFailed('Failed to teardown kubectl (this is a bug in kubectl-action): ')
 			debug(JSON.stringify(error))
 		})
 } else {
