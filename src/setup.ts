@@ -63,11 +63,24 @@ async function fetchKubectl(version: string) {
 		return join(cachedPath, 'kubectl')
 	}
 
-	// TODO: Support other platforms
-	const url = `https://dl.k8s.io/release/${version}/bin/linux/amd64/kubectl`
+	const url = `https://dl.k8s.io/release/${version}/bin/${retrieveRunnerMetadata()}/kubectl`
 
 	console.log(`Downloading kubectl (${url})`)
 	const downloadPath = await downloadTool(url)
 	const toolPath = await cacheFile(downloadPath, 'kubectl', 'kubectl', version)
 	return join(toolPath, 'kubectl')
+}
+
+// Gets the proper architecture and OS for the current platform
+// This doesn't use node functions, but instead CI variables provided by GitHub
+function retrieveRunnerMetadata() {
+	// Currently we don't support win32 platforms anyways
+	const runnerSystem = env.RUNNER_OS === 'Linux' ? 'linux' : 'darwin'
+	const runnerArch = env.RUNNER_ARCH?.toLowerCase()
+
+	if (runnerArch?.includes('arm')) {
+		return `${runnerSystem}/arm64`
+	}
+
+	return `${runnerSystem}/amd64`
 }
