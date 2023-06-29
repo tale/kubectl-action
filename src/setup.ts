@@ -36,7 +36,7 @@ export async function installKubectl() {
 		debug(`kubectl ${version} installed and cached at ${path}`)
 	} catch {
 		debug('Failed to download kubectl from dl.k8s.io')
-		setFailed('Failed to download kubectl from dl.k8s.io')
+		setFailed('Failed to download kubectl from dl.k8s.io\nPlease check the version you specified is valid')
 	}
 }
 
