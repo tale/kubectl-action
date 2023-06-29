@@ -1,11 +1,11 @@
-import { platform } from 'node:process'
+import { env, platform } from 'node:process'
 
 import { debug, getState, setFailed } from '@actions/core'
 import { setupKubeconfig } from 'login'
 import { installKubectl } from 'setup'
 import { teardown } from 'teardown'
 
-if (platform === 'win32') {
+if (env.RUNNER_OS === 'Windows' || platform === 'win32') {
 	setFailed('kubectl-action does not support Windows')
 }
 
