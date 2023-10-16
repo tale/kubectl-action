@@ -9,7 +9,7 @@
 	"dependencies": {
 		"@actions/core": "^1.10.0",
 		"@actions/tool-cache": "^2.0.1",
-		"undici": "^5.22.1"
+		"undici": "^5.26.2"
 	},
 	"devDependencies": {
 		"@types/node": "^20.3.2",
