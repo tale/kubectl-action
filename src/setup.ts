@@ -4,7 +4,6 @@ import { env } from 'node:process'
 
 import { addPath, debug, getInput, setFailed } from '@actions/core'
 import { cacheFile, downloadTool, find } from '@actions/tool-cache'
-import { fetch } from 'undici'
 
 export async function installKubectl() {
 	debug('Running kubectl-action installKubectl()')
