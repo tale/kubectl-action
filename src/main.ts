@@ -1,4 +1,4 @@
-import { env, platform } from 'node:process'
+import { env, exit, platform } from 'node:process'
 
 import { debug, getState, setFailed } from '@actions/core'
 import { setupKubeconfig } from 'login'
@@ -7,6 +7,7 @@ import { teardown } from 'teardown'
 
 if (env.RUNNER_OS === 'Windows' || platform === 'win32') {
 	setFailed('kubectl-action does not support Windows')
+	exit(1)
 }
 
 if (getState('kubectl-path')) {
