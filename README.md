@@ -50,18 +50,18 @@ on:
   workflow_dispatch:
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Configure AWS Credentials
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            role-to-assume: arn:aws:iam::123456789100:role/my-github-actions-role
-            aws-region: us-east-2
-        - name: Generate kubeconfig
-          run: echo "EKS_CREDS=$(aws eks update-kubeconfig --region us-east-2 --name my-cluster --dry-run | base64) >> $GITHUB_ENV
-        - uses: tale/kubectl-action@v1
-          with:
-            base64-kube-config: ${{ env.EKS_CREDS }}
-        - run: kubectl get pods
-    ```
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+        role-to-assume: arn:aws:iam::123456789100:role/my-github-actions-role
+        aws-region: us-east-2
+    - name: Generate kubeconfig
+        run: echo "EKS_CREDS=$(aws eks update-kubeconfig --region us-east-2 --name my-cluster --dry-run | base64) >> $GITHUB_ENV
+    - uses: tale/kubectl-action@v1
+        with:
+        base64-kube-config: ${{ env.EKS_CREDS }}
+    - run: kubectl get pods
+```
