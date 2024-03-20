@@ -1,0 +1,18 @@
+name: Kubernetes CLI (kubectl)
+description: GitHub Action to manage a K8s cluster using kubectl
+author: Aarnav Tale <aarnav@tale.me>
+branding:
+  icon: terminal
+  color: blue
+inputs:
+  kubectl-version:
+    description: Version of the kubectl CLI to use
+    required: false
+    default: latest
+  base64-kube-config:
+    description: A base64 encoded reference to your authorization file (~/.kube/config)
+    required: true
+runs:
+  using: node20
+  main: dist/index.js
+  post: dist/index.js

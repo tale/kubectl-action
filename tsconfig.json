@@ -1,0 +1,14 @@
+{
+	"exclude": ["dist"],
+	"compilerOptions": {
+		"baseUrl": "./src",
+		"rootDir": "./src",
+		"outDir": "./dist",
+		"target": "ESNext",
+		"module": "CommonJS",
+		"moduleResolution": "Node",
+		"skipLibCheck": true,
+		"strict": true,
+		"noEmit": true
+	}
+}
