@@ -26,4 +26,5 @@ jobs:
         git add -f dist README.md LICENSE action.yaml
         git commit -m "chore: create ci release ($GITHUB_SHA)"
         git tag --force v1
+        git tag --force $GITHUB_REF_NAME
         git push -f --tags origin deploy
