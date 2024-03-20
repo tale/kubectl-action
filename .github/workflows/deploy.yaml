@@ -1,0 +1,29 @@
+name: Deploy Action
+
+on:
+  push:
+    tags:
+      - '*'
+      - '!v1'
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+    - name: Build latest dist/ folder
+      run: |
+        npm install -g pnpm
+        pnpm install --frozen-lockfile
+        pnpm run build
+    - name: Upload dist/ folder
+      run: |
+        git config --global user.email "<41898282+github-actions[bot]@users.noreply.github.com>"
+        git config --global user.name "github-actions[bot]"
+        git checkout --orphan deploy
+        git add -f dist README.md LICENSE action.yaml
+        git commit -m "chore: create ci release ($GITHUB_SHA)"
+        git tag --force v1
+        git push -f --tags origin deploy
