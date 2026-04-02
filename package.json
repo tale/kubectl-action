@@ -11,7 +11,7 @@
 		"@actions/tool-cache": "^2.0.1"
 	},
 	"devDependencies": {
-		"@types/node": "^20.11.30",
+		"@types/node": "^24.12.0",
 		"@vercel/ncc": "^0.38.1",
 		"eslint": "^8.57.0",
 		"eslint-config-tale": "^1.0.16",

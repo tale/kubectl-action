@@ -13,6 +13,6 @@ inputs:
     description: A base64 encoded reference to your authorization file (~/.kube/config)
     required: true
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
   post: dist/index.js
